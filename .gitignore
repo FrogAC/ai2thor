@@ -37,13 +37,11 @@ ExportedObj/
 sysinfo.txt
 
 # Builds
+Builds/*
 *.apk
 *.unitypackage
 
 # setup.py generated files
-.eggs/
-ai2thor.egg-info/
-build/
 dist/
 venv/
 .pytest_cache
