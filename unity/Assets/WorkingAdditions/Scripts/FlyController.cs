@@ -58,15 +58,16 @@ public class FlyController : MonoBehaviour {
         transform.Translate(p);
 
         /// ui
-        loggerUi.text = string.Format("WASDRF,MouseWheel,C\ncam pos = {0}\nprojection mat =\n{1}\n",
-                            camMain.transform.position,
-                            camMain.projectionMatrix);
-
+        loggerUi.text = string.Format("{0}\n{1}", 
+                            camMain.projectionMatrix,
+                            camMain.cameraToWorldMatrix);
         /// Capture
         if (Input.GetKeyDown(KeyCode.C)) {
-            StartCoroutine(TakeScreenShot(camMain, "Main", RES_WIDTH,RES_HEIGHT));
+            Debug.Log(camMain.projectionMatrix.inverse.ToString());
+            Debug.Log(camMain.cameraToWorldMatrix.ToString());
+            //StartCoroutine(TakeScreenShot(camMain, "Main", RES_WIDTH,RES_HEIGHT));
             StartCoroutine(TakeScreenShot(camDepth, "Depth", 0f,0f));
-            StartCoroutine(TakeScreenShot(camPoint, "Points", RES_WIDTH,0f));
+            //StartCoroutine(TakeScreenShot(camPoint, "Points", RES_WIDTH,0f));
         }
     }
 

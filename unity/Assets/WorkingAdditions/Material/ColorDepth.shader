@@ -39,7 +39,9 @@
             {
                 fixed3 col;
                 fixed depth = i.depth;
-                return fixed4(depth,depth,depth,1.0);
+
+                col = tex2D(_DepthMap, fixed2(depth,.5));
+                return fixed4(col,1.0);
             }
             ENDCG
         }
