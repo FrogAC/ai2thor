@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>three.js webgl - Depth Texture</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link type="text/css" rel="stylesheet" href="main.css">
+	<style>
+		#error {
+			margin: auto;
+			margin-top: 40px;
+			display: block;
+			max-width: 400px;
+			padding: 20px;
+			background: #CE0808;
+		}
+	</style>
+
+</head>
+
+<body>
+	<canvas></canvas>
+	<div id="info">
+		depth0.png to points<br />
+		<div id="error" style="display: none;">
+			Your browser does not support <strong>WEBGL_depth_texture</strong>.<br /><br />
+			This demo will not work.
+		</div>
+	</div>
+
+	<script type="module">
+
+		import * as THREE from '../build/three.module.js';
+
+		import Stats from './jsm/libs/stats.module.js';
+
+		import { OrbitControls } from './jsm/controls/OrbitControls.js';
+
+		import { GUI } from './jsm/libs/dat.gui.module.js';
+
+		var camera, scene, renderer, controls, stats;
+		var target;
+		var supportsExtension = true;
+
+		init();
+		animate();
+
+		function init() {
+
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+
+			//
+
+			stats = new Stats();
+			document.body.appendChild(stats.dom);
+
+			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 50);
+			camera.position.z = 4;
+
+			controls = new OrbitControls(camera, renderer.domElement);
+			controls.enableDamping = true;
+			controls.dampingFactor = 0.05;
+
+			// Create a multi render target with Float buffers
+			target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
+			target.texture.format = THREE.RGBFormat;
+			target.texture.minFilter = THREE.NearestFilter;
+			target.texture.magFilter = THREE.NearestFilter;
+			target.texture.generateMipmaps = false;
+			target.stencilBuffer = false;
+			target.depthBuffer = true;
+			target.depthTexture = new THREE.DepthTexture();
+			target.depthTexture.type = THREE.UnsignedShortType;
+
+			// Our scene
+			scene = new THREE.Scene();
+			scene.fog = new THREE.FogExp2(0x000000, 0.001);
+			setupScene();
+
+			onWindowResize();
+			window.addEventListener('resize', onWindowResize, false);
+
+		}
+
+		function setupScene() {
+			var invVarr = [
+				new THREE.Matrix4().set(
+					0.84538, 0.00000, 0.53417, -0.48000,
+					0.00000, 1.00000, 0.00000, 1.14000,
+					0.53417, 0.00000, -0.84538, -1.71000,
+					0.00000, 0.00000, 0.00000, 1.00000
+				),
+				new THREE.Matrix4().set(
+					-0.90588, 0.00000, 0.42354, 0.63000,
+					0.00000, 1.00000, 0.00000, 1.43000,
+					0.42354, 0.00000, 0.90588, 0.03000,
+					0.00000, 0.00000, 0.00000, 1.00000
+				),
+				new THREE.Matrix4().set(
+					0.99985, -0.00590, 0.01640, -0.36000,
+					0.00000, 0.94099, 0.33844, 1.77700,
+					0.01743, 0.33839, -0.94085, -0.48000,
+					0.00000, 0.00000, 0.00000, 1.00000
+				),
+			];
+
+			var invParr = [
+				new THREE.Matrix4().set(
+					0.92340, 0.00000, 0.00000, 0.00000,
+					0.00000, 0.57735, 0.00000, 0.00000,
+					0.00000, 0.00000, 0.00000, -1.00000,
+					0.00000, 0.00000, -1.60417, 1.72917
+				),
+				new THREE.Matrix4().set(
+					1.47070, 0.00000, 0.00000, 0.00000,
+					0.00000, 0.91955, 0.00000, 0.00000,
+					0.00000, 0.00000, 0.00000, -1.00000,
+					0.00000, 0.00000, -1.60417, 1.72917
+				),
+				new THREE.Matrix4().set(
+					1.32782, 0.00000, 0.00000, 0.00000,
+					0.00000, 0.83022, 0.00000, 0.00000,
+					0.00000, 0.00000, 0.00000, -1.00000,
+					0.00000, 0.00000, -1.60417, 1.72917
+				),
+			];
+			// Setup some geometries
+			var geometry = new THREE.BufferGeometry();
+			var vertices = [];
+
+			var sprite = new THREE.TextureLoader().load('textures/sprites/disc.png');
+
+			// setup projections from one image
+			function setupParticles(id) {
+
+				var invV = invVarr[id];
+				var invP = invParr[id];
+				var depthLoader = new THREE.ImageLoader();
+				// load a image resource
+				depthLoader.load(
+					// resource URL
+					`textures/depth${id}.png`,
+
+					// onLoad callback
+					function (image) {
+						// https://stackoverflow.com/questions/8751020/how-to-get-a-pixels-x-y-coordinate-color-from-an-image
+						var canvas = document.createElement('canvas');
+						var w = image.width;
+						var h = image.height;
+						canvas.width = w;
+						canvas.height = h;
+						canvas.getContext('2d').drawImage(image, 0, 0, w, h);
+						var imgdata = (canvas.getContext('2d').getImageData(0, 0, w, h).data);
+
+						for (var i = 0; i < w * h; i += 8) {
+							// screen in [0,1]
+							var pscreen = new THREE.Vector3((i % w) / w, 1 - (i / w) / h,
+								imgdata[i * 4] / 255);
+							// clip/ndc
+							var p = new THREE.Vector4(
+								(2 * pscreen.x) - 1,
+								(2 * pscreen.y) - 1,
+								2 * pscreen.z - 1,  // 2z-1 for OPENGL ; z for D3D
+								1);
+							// view
+							p.applyMatrix4(invP);
+							// perspective divide
+							p.x /= p.w;
+							p.y /= p.w;
+							p.z /= p.w;
+							p.w = 1;
+							// world
+							p.applyMatrix4(invV);
+							vertices.push(p.x, p.y, p.z);
+						}
+						console.log("depth loaded");
+
+						geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+						var material = new THREE.PointsMaterial({ size: 5, sizeAttenuation: false, map: sprite, alphaTest: 0.5, transparent: true });
+						material.color.setHSL(0.3, 0.8, 0.8);
+
+						var particles = new THREE.Points(geometry, material);
+						scene.add(particles);
+					},
+
+					// onProgress callback currently not supported
+					undefined,
+
+					// onError callback
+					function () {
+						console.error('error load texture.');
+					}
+				);
+			}
+
+			//
+
+			// var gui = new GUI();
+
+			// gui.add(material, 'sizeAttenuation').onChange(function () {
+
+			// 	material.needsUpdate = true;
+
+			// });
+			setupParticles(0);
+			setupParticles(1);
+			setupParticles(2);
+
+			// model
+			
+		}
+
+		function onWindowResize() {
+
+			var aspect = window.innerWidth / window.innerHeight;
+			camera.aspect = aspect;
+			camera.updateProjectionMatrix();
+
+			var dpr = renderer.getPixelRatio();
+			target.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+		}
+
+		function animate() {
+
+			if (!supportsExtension) return;
+
+			requestAnimationFrame(animate);
+
+			// render scene into target
+			// renderer.setRenderTarget(target);
+			renderer.render(scene, camera);
+
+			controls.update(); // required because damping is enabled
+
+			stats.update();
+
+		}
+
+	</script>
+
+</body>
+
+</html>

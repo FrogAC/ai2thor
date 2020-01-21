@@ -62,7 +62,10 @@ public class FlyController : MonoBehaviour {
                             camMain.projectionMatrix,
                             camMain.cameraToWorldMatrix);
         /// Capture
+        // screen->ndc->camera->world
         if (Input.GetKeyDown(KeyCode.C)) {
+            Debug.Log(camMain.transform.position.ToString());
+            Debug.Log(camMain.projectionMatrix.ToString());
             Debug.Log(camMain.projectionMatrix.inverse.ToString());
             Debug.Log(camMain.cameraToWorldMatrix.ToString());
             //StartCoroutine(TakeScreenShot(camMain, "Main", RES_WIDTH,RES_HEIGHT));

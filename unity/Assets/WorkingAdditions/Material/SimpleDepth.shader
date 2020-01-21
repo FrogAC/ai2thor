@@ -6,6 +6,7 @@
     }
     SubShader
     {
+        Tags{ "RenderType"="Opaque" "Queue" = "Transparent"}
         Pass
         {
             CGPROGRAM
@@ -29,7 +30,8 @@
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.depth = -UnityObjectToViewPos(v.vertex).z * _ProjectionParams.w; // 1/farplane
+                // o.depth = -UnityObjectToViewPos(v.vertex).z * _ProjectionParams.w; // 1/farplane
+                COMPUTE_EYEDEPTH(o.depth);
                 return o;
             }
 
@@ -38,6 +40,7 @@
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed3 col;
+                //fixed depth = i.depth;
                 fixed depth = i.depth;
                 return fixed4(depth,depth,depth,1.0);
             }
