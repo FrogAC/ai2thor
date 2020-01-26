@@ -23,14 +23,13 @@ public class GeneratePoints : MonoBehaviour {
         int w = texture.width;
         int h = texture.height;
         int interval = 8;
-        Color[] imgdata = texture.GetPixels(0, 0, w, h);
+        Color[] imgdata = texture.GetPixels();
 
         Matrix4x4 viewMat = cam.worldToCameraMatrix;
         Matrix4x4 projMat = cam.projectionMatrix;
         var invVP = (projMat * viewMat).inverse;
 
         // main problem encountered is camera.projectionMatrix = ??????? worked but further from camera became more inaccurate
-        // ParticleSystem.Particle[] particles = new ParticleSystem.Particle[w*h/interval];
         var emitparams = new ParticleSystem.EmitParams();
         var decoder = new Vector4(1.0f, 1f / 255f, 1f / 65025.0f, 1f / 16581375.0f);
 
@@ -39,11 +38,11 @@ public class GeneratePoints : MonoBehaviour {
             float y = (float)(i / w) / (float)h;
             // decode
             float z = Vector4.Dot(imgdata[i], decoder);
+
             // z = (z*(cam.farClipPlane-cam.nearClipPlane)+cam.nearClipPlane);
             Vector4 vndc = new Vector4(
                 (2f * x) - 1f,
                 (2f * y) - 1f,
-                // z,
                 2.0f * z - 1,
                 1f
             );
@@ -74,18 +73,8 @@ public class GeneratePoints : MonoBehaviour {
                 // get z and calc depth : https://files.unity3d.com/talks/Siggraph2011_SpecialEffectsWithDepth_WithNotes.pdf 
                 // main problem encountered is camera.projectionMatrix = ??????? worked but further from camera became more inaccurate
                 Ray ray = cam.ScreenPointToRay(new Vector3(x, y, 0));
-                Debug.DrawRay(ray.origin, ray.direction * 10, Color.yellow, 4);
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit)) {
-                    // Vector4 vndc = new Vector4(
-                    //     (2f * x) - 1f,
-                    //     (2f * y) - 1f,
-                    //     2f * imgdata[i].r - 1f,
-                    //     1f
-                    // );
-                    // Vector4 vworld = invVP * vndc;
-                    // vworld /= vworld.w;
-
                     emitparams.startLifetime = 15;
                     emitparams.startSize = 0.005f;
                     emitparams.startColor = Color.green;
