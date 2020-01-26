@@ -72,7 +72,7 @@ public class FlyController : MonoBehaviour {
             //StartCoroutine(TakeScreenShot(camPoint, "Points", RES_WIDTH,0f));
         }
         if (Input.GetKeyDown(KeyCode.V)) {
-            generatePoints.GenerateCloudData(camMain);
+            generatePoints.GenerateCloudData(camDepth);
         }
         if (Input.GetKeyDown(KeyCode.B)) {
             //StartCoroutine(TakeScreenShot(camMain, "Main", RES_WIDTH,RES_HEIGHT));
