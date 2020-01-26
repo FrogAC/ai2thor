@@ -14,11 +14,12 @@ public class FlyController : MonoBehaviour {
     float shiftAdd = 5f;  // Multiplied by how long shift is held.  Basically running.
     float maxShift = 10f; // Maximum speed when holding shift.
     float camSens = 2f;  // Camera sensitivity by mouse input.
-    float fovCapLo = 50.0f;
+    float fovCapLo = 20.0f;
     float fovCapHi = 100.0f;
     public Camera camMain;
     public Camera camDepth;
     public Camera camPoint;
+    public Camera camModel;
     private Vector3 mouseDelta = new Vector3(Screen.width / 2, Screen.height / 2, 0); // Kind of in the middle of the screen, rather than at the top (play).
     private float totalRun = 1.0f;
 
@@ -56,18 +57,26 @@ public class FlyController : MonoBehaviour {
         p = p * Time.deltaTime;
         float newfov = camMain.fieldOfView - Input.mouseScrollDelta.y * 2f;
         newfov = Mathf.Clamp(newfov, fovCapLo, fovCapHi);
-        camDepth.fieldOfView = camMain.fieldOfView = camPoint.fieldOfView = newfov;
+        camModel.fieldOfView = camDepth.fieldOfView = camMain.fieldOfView = camPoint.fieldOfView = newfov;
         transform.Translate(p);
 
         /// ui
-        loggerUi.text = string.Format("{0}\n{1}", 
+        loggerUi.text = string.Format("{0}\n{1}",
                             camMain.projectionMatrix,
                             camMain.cameraToWorldMatrix);
         /// Capture
         // screen->ndc->camera->world
         if (Input.GetKeyDown(KeyCode.C)) {
             //StartCoroutine(TakeScreenShot(camMain, "Main", RES_WIDTH,RES_HEIGHT));
-            StartCoroutine(TakeScreenShot(camDepth, "Depth", 0f,0f));
+            StartCoroutine(TakeScreenShot(camDepth, "Depth", 0f, 0f));
+            //StartCoroutine(TakeScreenShot(camPoint, "Points", RES_WIDTH,0f));
+        }
+        if (Input.GetKeyDown(KeyCode.V)) {
+            generatePoints.GenerateCloudData(camMain);
+        }
+        if (Input.GetKeyDown(KeyCode.B)) {
+            //StartCoroutine(TakeScreenShot(camMain, "Main", RES_WIDTH,RES_HEIGHT));
+            StartCoroutine(TakeScreenShot(camPoint, "Depth", 0.5f, 0f, true));
             //StartCoroutine(TakeScreenShot(camPoint, "Points", RES_WIDTH,0f));
         }
     }
@@ -94,10 +103,9 @@ public class FlyController : MonoBehaviour {
         }
         return p_Velocity;
     }
-    private IEnumerator TakeScreenShot(Camera cam, string camid, float x, float y) {
+    private IEnumerator TakeScreenShot(Camera cam, string camid, float x, float y, bool useLinear = false) {
         yield return new WaitForEndOfFrame();
-
-        RenderTexture rt = new RenderTexture(RES_WIDTH, RES_HEIGHT, 24);
+        RenderTexture rt =  new RenderTexture(RES_WIDTH, RES_HEIGHT, 32);
         cam.targetTexture = rt;
         Texture2D capture = new Texture2D(RES_WIDTH, RES_HEIGHT, TextureFormat.RGB24, false);
         cam.Render();
@@ -110,7 +118,7 @@ public class FlyController : MonoBehaviour {
         Destroy(rt);
 
         // SEND to POINTCLOUDS
-        generatePoints.GenerateCloudData(capture, cam.projectionMatrix.inverse, cam.cameraToWorldMatrix);
+        generatePoints.GenerateCloudData(capture, cam, useLinear);
 
         // Encode texture
         byte[] bytes = capture.EncodeToPNG();

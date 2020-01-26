@@ -39,9 +39,6 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-                fixed3 col;
-                //fixed depth = i.depth;
-                fixed depth = i.depth;
                 return fixed4(depth,depth,depth,1.0);
             }
             ENDCG

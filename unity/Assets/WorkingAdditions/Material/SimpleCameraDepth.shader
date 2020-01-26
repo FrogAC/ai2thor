@@ -32,8 +32,12 @@ Shader "Custom/SimpleCameraDepth"
             fixed4 frag (v2f i) : SV_Target
             {
                 float2 uv = i.screenuv.xy / i.screenuv.w;
-                float depth = 1.0-SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
-                return fixed4(depth, depth, depth, 1);
+                float depth = 1.0-(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
+                // encode depth
+                float4 enc = float4(1.0, 255.0, 65025.0, 16581375.0) * depth;
+                enc = frac(enc);
+                enc -= enc.yzww * float4(1.0/255.0,1.0/255.0,1.0/255.0,0.0);
+                return enc;
             }
             ENDCG
         }

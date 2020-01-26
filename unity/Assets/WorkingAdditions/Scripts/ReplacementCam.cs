@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CloudPointCam : MonoBehaviour
+public class ReplacementCam : MonoBehaviour
 {
     public Shader shader;
     void Awake() { 

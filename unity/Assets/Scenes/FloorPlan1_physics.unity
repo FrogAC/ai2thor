@@ -14812,8 +14812,8 @@ Camera:
     y: 0.5
     width: 0.5
     height: 0.5
-  near clip plane: 0.3
-  far clip plane: 8
+  near clip plane: 0.2
+  far clip plane: 5
   field of view: 26.991467
   orthographic: 0
   orthographic size: 5
@@ -19548,8 +19548,8 @@ Camera:
     y: 0.5
     width: 0.5
     height: 0.5
-  near clip plane: 0.3
-  far clip plane: 8
+  near clip plane: 0.2
+  far clip plane: 5
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -19577,10 +19577,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 673040070}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c964b58b1b6942428a13249ee4028f6, type: 3}
+  m_Script: {fileID: 11500000, guid: 5c3e52cca7e7b7a4aab9e742fcbf107e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shader: {fileID: 4800000, guid: a28d4986fefab0e40a3b49113c9c3104, type: 3}
+  shader: {fileID: 4800000, guid: fb281686789ea8449aa7471ff4385116, type: 3}
 --- !u!1001 &679823417
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -24778,7 +24778,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &926228078
 GameObject:
@@ -46069,7 +46069,7 @@ RectTransform:
   m_Children:
   - {fileID: 680166097}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -49690,8 +49690,8 @@ Camera:
     y: 0
     width: 0.5
     height: 0.5
-  near clip plane: 0.3
-  far clip plane: 8
+  near clip plane: 0.2
+  far clip plane: 5
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -55142,6 +55142,7 @@ MonoBehaviour:
   camMain: {fileID: 2041009420}
   camDepth: {fileID: 506697472}
   camPoint: {fileID: 673040073}
+  camModel: {fileID: 1761317553}
   generatePoints: {fileID: 1598545899}
   loggerUi: {fileID: 680166098}
 --- !u!81 &2041009419
@@ -55174,8 +55175,8 @@ Camera:
     y: 0
     width: 0.5
     height: 0.5
-  near clip plane: 0.3
-  far clip plane: 8
+  near clip plane: 0.2
+  far clip plane: 5
   field of view: 60
   orthographic: 0
   orthographic size: 5
