@@ -22,6 +22,8 @@ public class FlyController : MonoBehaviour {
     private Vector3 mouseDelta = new Vector3(Screen.width / 2, Screen.height / 2, 0); // Kind of in the middle of the screen, rather than at the top (play).
     private float totalRun = 1.0f;
 
+    public GeneratePoints generatePoints;
+
     /// logging
     public Text loggerUi;
     /// ScreenCap
@@ -64,10 +66,6 @@ public class FlyController : MonoBehaviour {
         /// Capture
         // screen->ndc->camera->world
         if (Input.GetKeyDown(KeyCode.C)) {
-            Debug.Log(camMain.transform.position.ToString());
-            Debug.Log(camMain.projectionMatrix.ToString());
-            Debug.Log(camMain.projectionMatrix.inverse.ToString());
-            Debug.Log(camMain.cameraToWorldMatrix.ToString());
             //StartCoroutine(TakeScreenShot(camMain, "Main", RES_WIDTH,RES_HEIGHT));
             StartCoroutine(TakeScreenShot(camDepth, "Depth", 0f,0f));
             //StartCoroutine(TakeScreenShot(camPoint, "Points", RES_WIDTH,0f));
@@ -99,15 +97,21 @@ public class FlyController : MonoBehaviour {
     private IEnumerator TakeScreenShot(Camera cam, string camid, float x, float y) {
         yield return new WaitForEndOfFrame();
 
-        RenderTexture rt = new RenderTexture(RES_WIDTH * 2, RES_HEIGHT * 2, 24);
+        RenderTexture rt = new RenderTexture(RES_WIDTH, RES_HEIGHT, 24);
         cam.targetTexture = rt;
         Texture2D capture = new Texture2D(RES_WIDTH, RES_HEIGHT, TextureFormat.RGB24, false);
         cam.Render();
         RenderTexture.active = rt;
         capture.ReadPixels(new Rect(x, y, RES_WIDTH, RES_HEIGHT), 0, 0);
+
+
         cam.targetTexture = null;
         RenderTexture.active = null;
         Destroy(rt);
+
+        // SEND to POINTCLOUDS
+        generatePoints.GenerateCloudData(capture, cam.projectionMatrix.inverse, cam.cameraToWorldMatrix);
+
         // Encode texture
         byte[] bytes = capture.EncodeToPNG();
         string path = string.Format("{0}/screenshots/Shot{1}_{2}.png",
