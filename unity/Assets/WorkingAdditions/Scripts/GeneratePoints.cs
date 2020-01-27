@@ -59,8 +59,8 @@ public class GeneratePoints : MonoBehaviour {
 
     // use a camera ray
     public void GenerateCloudData(Camera cam) {
-        int w = cam.pixelWidth * 2;
-        int h = cam.pixelHeight * 2;
+        int w = cam.pixelWidth;
+        int h = cam.pixelHeight;
         int interval = 2;
 
         var invVP = (cam.worldToCameraMatrix * cam.projectionMatrix).inverse;
@@ -68,8 +68,8 @@ public class GeneratePoints : MonoBehaviour {
         // ParticleSystem.Particle[] particles = new ParticleSystem.Particle[w*h/interval];
         var emitparams = new ParticleSystem.EmitParams();
 
-        for (int x = 0; x < w/2; x += interval) {
-            for (int y = h/2; y < h; y += interval) {
+        for (int x = 0; x < w; x += interval) {
+            for (int y = 0; y < h; y += interval) {
                 // get z and calc depth : https://files.unity3d.com/talks/Siggraph2011_SpecialEffectsWithDepth_WithNotes.pdf 
                 // main problem encountered is camera.projectionMatrix = ??????? worked but further from camera became more inaccurate
                 Ray ray = cam.ScreenPointToRay(new Vector3(x, y, 0));
